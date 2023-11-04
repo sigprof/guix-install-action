@@ -4,6 +4,10 @@ branding:
   icon: 'package'
   color: 'gray-dark'
 inputs:
+  useExistingGuix:
+    description: 'Use the existing Guix binary (assume that the Guix store had been restored from the cache).'
+    required: false
+    default: false
   channels:
     description: 'Guix channel description as Scheme code'
     required: false
@@ -36,8 +40,13 @@ runs:
         wget -nv https://ftp.gnu.org/gnu/guix/guix-binary-1.4.0.x86_64-linux.tar.xz -O guix-binary-nightly.x86_64-linux.tar.xz
       shell: bash
       name: Download
+      if: ${{ inputs.useExistingGuix != 'true' }}
     - run: |
         sudo -- tar --extract --file "guix-binary-nightly.x86_64-linux.tar.xz" -C / --no-overwrite-dir
+      shell: bash
+      name: Extract Guix
+      if: ${{ inputs.useExistingGuix != 'true' }}
+    - run: |
         sudo -- groupadd --system guixbuild
 
         for i in $(seq -w 1 10); do
