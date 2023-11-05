@@ -64,6 +64,8 @@ runs:
             fi
             sudo install -o root -g root -m 0664 "$svc_cache_path/$svc" "/etc/systemd/system/$svc"
         done
+        sudo sed -i -e 's,^\(ExecStart=[^[:space:]]*\)[[:space:]],\1 --gc-keep-outputs=yes --gc-keep-derivations=yes ,' \
+            /etc/systemd/system/guix-daemon.service
         sudo systemctl daemon-reload
         sudo systemctl enable --now gnu-store.mount guix-daemon.service
 
