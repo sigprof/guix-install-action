@@ -55,8 +55,15 @@ runs:
 
         export GUIX_PATH=/var/guix/profiles/per-user/root/current-guix
 
-        sudo cp $GUIX_PATH/lib/systemd/system/{gnu-store.mount,guix-daemon.service} /etc/systemd/system/
-        sudo chmod 664 /etc/systemd/system/{gnu-store.mount,guix-daemon.service}
+        orig_svc_path="$GUIX_PATH/lib/systemd/system"
+        svc_cache_path="$HOME/.cache/guix-install-action/systemd"
+        mkdir -p "$svc_cache_path"
+        for svc in gnu-store.mount guix-daemon.service; do
+            if [ -e "$orig_svc_path/$svc" ]; then
+                cp "$orig_svc_path/$svc" "$svc_cache_path/$svc"
+            fi
+            sudo install -o root -g root -m 0664 "$svc_cache_path/$svc" "/etc/systemd/system/$svc"
+        done
         sudo systemctl daemon-reload
         sudo systemctl enable --now gnu-store.mount guix-daemon.service
 
